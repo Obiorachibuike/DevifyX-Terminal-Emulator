@@ -407,5 +407,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for the DevifyX Assignment**
 
-#   D e v i f y X - T e r m i n a l - E m u l a t o r  
- 
