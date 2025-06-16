@@ -20,7 +20,8 @@ interface Commands {
 
 const TerminalEmulator: React.FC = () => {
   const [currentPath, setCurrentPath] = useState<string>('/home/user');
-  const [username, setUsername] = useState<string>('user');
+  // Removed setUsername as it was declared but never read. Username is constant in this simulation.
+  const [username] = useState<string>('user'); 
   const [hostname] = useState<string>('devifyx');
   const [output, setOutput] = useState<OutputItem[]>([]);
   const [currentInput, setCurrentInput] = useState<string>('');
@@ -33,37 +34,37 @@ const TerminalEmulator: React.FC = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
 
   // File system simulation
+  // Corrected the initial state for fileSystem. 
+  // The root directory itself is the FileSystemNode, not an object containing a '/' key.
   const [fileSystem] = useState<FileSystemNode>({
-    '/': {
-      type: 'directory',
-      contents: {
-        'home': {
-          type: 'directory',
-          contents: {
-            'user': {
-              type: 'directory',
-              contents: {
-                'documents': { type: 'directory', contents: {} },
-                'downloads': { type: 'directory', contents: {} },
-                'desktop': { type: 'directory', contents: {} },
-                'readme.txt': { type: 'file', content: 'Welcome to DevifyX Terminal!' },
-                'config.json': { type: 'file', content: '{"theme": "dark", "font": "monospace"}' }
-              }
+    type: 'directory',
+    contents: {
+      'home': {
+        type: 'directory',
+        contents: {
+          'user': {
+            type: 'directory',
+            contents: {
+              'documents': { type: 'directory', contents: {} },
+              'downloads': { type: 'directory', contents: {} },
+              'desktop': { type: 'directory', contents: {} },
+              'readme.txt': { type: 'file', content: 'Welcome to DevifyX Terminal!' },
+              'config.json': { type: 'file', content: '{"theme": "dark", "font": "monospace"}' }
             }
           }
-        },
-        'usr': {
-          type: 'directory',
-          contents: {
-            'bin': { type: 'directory', contents: {} },
-            'lib': { type: 'directory', contents: {} }
-          }
-        },
-        'etc': {
-          type: 'directory',
-          contents: {
-            'hosts': { type: 'file', content: '127.0.0.1 localhost' }
-          }
+        }
+      },
+      'usr': {
+        type: 'directory',
+        contents: {
+          'bin': { type: 'directory', contents: {} },
+          'lib': { type: 'directory', contents: {} }
+        }
+      },
+      'etc': {
+        type: 'directory',
+        contents: {
+          'hosts': { type: 'file', content: '127.0.0.1 localhost' }
         }
       }
     }
@@ -91,20 +92,8 @@ const TerminalEmulator: React.FC = () => {
     }
   }, [output]);
 
-  // Get current directory contents
-  const getCurrentDirectory = (): FileSystemNode | null => {
-    const pathParts = currentPath.split('/').filter(Boolean);
-    let current: FileSystemNode = fileSystem['/'];
-
-    for (const part of pathParts) {
-      if (current.contents && current.contents[part]) {
-        current = current.contents[part];
-      } else {
-        return null;
-      }
-    }
-    return current;
-  };
+  // Removed getCurrentDirectory as it was declared but never read.
+  // Its logic is incorporated into getFileAtPath.
 
   // Resolve path
   const resolvePath = (path: string): string => {
@@ -122,14 +111,18 @@ const TerminalEmulator: React.FC = () => {
       }
     }
 
+    // Ensure the path always starts with '/'
     return '/' + parts.join('/');
   };
 
   // Get file/directory at path
   const getFileAtPath = (path: string): FileSystemNode | null => {
     const resolvedPath = resolvePath(path);
-    const pathParts = resolvedPath.split('/').filter(Boolean);
-    let current: FileSystemNode = fileSystem['/'];
+    // Remove leading '/' to correctly navigate the fileSystem contents
+    const pathParts = resolvedPath.split('/').filter(Boolean); 
+    
+    // Start from the root of the fileSystem, which is the fileSystem state itself
+    let current: FileSystemNode = fileSystem; 
 
     for (const part of pathParts) {
       if (current.contents && current.contents[part]) {
